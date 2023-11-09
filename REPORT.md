@@ -31,8 +31,8 @@ Actor(
 ```
 
 ```
-# Note that the fc2 layer of the critic has 404 input features since 
-# the 4 action features are inserted into the critic in this second layer.
+# Note that the fc2 layer of the critic has 402 input features since 
+# the  action features are inserted into the critic in this second layer.
 Critic(
   (fcs1): Linear(in_features=24, out_features=400, bias=True)
   (fc2): Linear(in_features=402, out_features=300, bias=True)
