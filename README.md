@@ -46,7 +46,7 @@ The environment is considered solved, when the average (over 100 episodes) of th
 
 Follow the instructions in `Tennis.ipynb` to train the agent.
 
-Note that the `Tennis.ipynb` Section 4 demonstrates training the agent to solve the Reacher environment.
+Note that the `Tennis.ipynb` Section 4 demonstrates training the agent to solve the collaborative Tennis environment.
 
 Note that a report on this project is provided in `Report.md`.
 

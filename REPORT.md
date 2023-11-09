@@ -75,25 +75,17 @@ Performance of the agent in the environment at varied checkpoints are shown belo
 
 Examples of how various checkpoints of the agent performs after different checkpoints are found in the [videos](./videos) directory.  As the episodes increase, it can be seen that the agent's performance in this collaborative game improves.
 
-The videos are also provided on YouTube for easy reference:
-* [Example 1]()
-* [Example 2]()
-* [Example 3]()
-* [Example 4]()
-* [Example 5]()
-* [Example 6]()
-* [Example 7]()
-* [Example 8]()
-* [Example 9]()
-* [Example 10]()
+Average scores every 500 episodes:
 
-Training of all episodes from 1 to 4000:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="./images/training_avg_every_500_episodes.png" alt="drawing" width="400"/>
 
-![](./images/training.png)
+Note that the time it takes to collect 500 episode seems strongly correlated to the the average score.  This makes sense since if there is a high score, an episode takes longer to play out.
 
-Average scores every 100 episodes:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="./images/delta_time_to_collect_an_episode.png" alt="drawing" width="400"/>
 
-![](./images/training_avg_every_500_episodes.png)
+We can see that the highest performance is attained at Episode 3500 and if we watch the video from that checkpoint, indeed it does seem to perform better than the other checkpoints.  Interestingly, later checkpoints had lower scores and this drop in performance coincided with maxing out the replay buffer memory.  The implementation of the replay buffer in this agent uses a simple `deque` object to keep track of examples and purges old data when the buffer is full.  The curious thing about this model is that once the model starts to play well, then the early poor performance examples are purged and are no longer available for further training.  As such, the model seems to over train on good examples and forgets what bad behavior is and bad behavior such as fast twitching motions resurface once these old examples are purged.  A smarter method of keeping data in the replay buffer based upon it's dissimilarity ot other data is recommended for future investigation.
 
 Log of training progress:
 ```
@@ -103,16 +95,19 @@ Episode 1500	Average Score: 0.0828	 Memory Size: 72854 	Elapsed Time: 549.4054 s
 Episode 2000	Average Score: 0.1120	 Memory Size: 123066	Elapsed Time: 935.6939 sec
 Episode 2500	Average Score: 0.4073	 Memory Size: 228334	Elapsed Time: 1795.4472 sec
 Episode 3000	Average Score: 0.1251	 Memory Size: 289536	Elapsed Time: 2325.0231 sec
-Episode 3430	Average Score: 1.6202	 Memory Size: 537160	Elapsed Time: 4816.3489 sec
-...
+Episode 3500	Average Score: 1.8176	 Memory Size: 633440	Elapsed Time: 5889.3029 sec
+Episode 4000	Average Score: 1.3567	 Memory Size: 1000000	Elapsed Time: 13757.3752 sec
+Episode 4500	Average Score: 0.4269	 Memory Size: 1000000	Elapsed Time: 15602.6458 sec
+Episode 5000	Average Score: 0.7377	 Memory Size: 1000000	Elapsed Time: 19932.3672 sec
 ```
 
 ## Ideas for Future Work
 
 In the future, it would be good to investigate different models with several different features.  Suggestions include:
 
+* Investigate how we can keep the examples of bad behavior from old iterations in the replay buffer such that the agent does not completely forget what bad behavior is and thus starts to revert to some bad behavior as shown by the drop in performance after the replay buffer is filled up.
+* In this report, we only show training on one agent in collaborative play.  It would be interesting to create a new environment and then train agents in a zero-sum or competitive environment and investigate how training setup and progression varies with this type of a challenge.  Next up will be training the soccer environment (which is a competitive environment) to see if a single agent or multiple agents work well.  Likely would need one agent per "personna" for instance if you wanted to have a defender and a forward soccer player.  
 * Try different numbers of units for hidden layers.  As noted above, the number of units for hidden layers was relatively high with respect to the observation and action space.  It would be a good exercise to determine the minimum number of hidden units / network size to attain desired performance and solve the environment. 
 * Try different types of non-linear activation functions.  Note that classical robotic arm control leverages transformation matricies of trigonometric functions.  If we know that the physical entity that the agent is attempting to control is a robotic arm with articulated joints, it may be beneficial to pick a non-linear activation function which could replicate this behavior instead of attempting to curve fit smooth trigonometric functions with differentialy discontinuous ReLU functions.  While simple, ReLU likely requires a much higher number of units.
 * It is known that training may not always go according to plan and it would be beneficial to have a reliable way to restart training at a desired checkpoint without losing progress.  To this end two items should be investigated.  First of all, how should we serialize the entire state of the training which includes current hyper parameters, replay buffer state, training progress metrics (i.e. scores vs episode), in addition to the actor and critic network weights.  Secondly, it would be interesting to investigate which of the hyper parameters and replay buffer state plays a bigger role in losing progress when training is restarted without saving these as state parameters.  That insight would likely provide additional information as to what is important to consider when creating an agent which can have stable training.
 * Investigate if there is an optimal number of steps between retrainings of the target network.  
-* In this report, we only show training on one agent in collaborative play.  It would be interesting to create a new environment and then train agents in a zero-sum or competitive environment and investigate how training setup and progression varies with this type of a challenge.  Next up will be training the soccer environment (which is a competitive environment) to see if a single agent or multiple agents work well.  Likely would need one agent per "personna" for instance if you wanted to have a defender and a forward soccer player.  
